@@ -1,0 +1,71 @@
+# Maintainer: gym603 <gui_yuan_miao@163.com>
+
+_realname=conan
+pkgbase=mingw-w64-python-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-python-${_realname}"
+pkgver=1.47.0
+pkgrel=1
+pkgdesc="Decentralized C/C++ package manager (mingw-w64)"
+arch=('any')
+url="https://conan.io/"
+license=('MIT')
+mingw_arch=('mingw32' 'mingw64')
+depends=("${MINGW_PACKAGE_PREFIX}-python"
+         "${MINGW_PACKAGE_PREFIX}-python-colorama"
+         "${MINGW_PACKAGE_PREFIX}-python-fasteners"
+         "${MINGW_PACKAGE_PREFIX}-python-pygments"
+         "${MINGW_PACKAGE_PREFIX}-python-pyjwt>=1.4.0"
+         "${MINGW_PACKAGE_PREFIX}-python-pyjwt<2.0.0"
+         "${MINGW_PACKAGE_PREFIX}-python-dateutil"
+         "${MINGW_PACKAGE_PREFIX}-python-requests"
+         "${MINGW_PACKAGE_PREFIX}-python-six"
+         "${MINGW_PACKAGE_PREFIX}-python-tqdm"
+         "${MINGW_PACKAGE_PREFIX}-python-urllib3"
+         "${MINGW_PACKAGE_PREFIX}-python-yaml>=3.11"
+         "${MINGW_PACKAGE_PREFIX}-python-yaml<6.0"
+         "${MINGW_PACKAGE_PREFIX}-python-jinja")
+makedepends=("patch"
+             "${MINGW_PACKAGE_PREFIX}-python-setuptools")
+checkdepends=("${MINGW_PACKAGE_PREFIX}-python-pytest")
+source=(${_realname}-${pkgver}.tar.gz::https://github.com/conan-io/conan/archive/refs/tags/${pkgver}.tar.gz)
+sha256sums=('4de05e98023c45a62ff91ed9941e9662d6784d10dd7d5f219061ad7cadbe059b')
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying ${_patch}"
+    patch -Nbp1 -i "${srcdir}/${_patch}"
+  done
+}
+
+prepare() {
+  rm -rf "${srcdir}/${_realname}-${pkgver}.orig"
+  cp -rp "${srcdir}/${_realname}-${pkgver}" "${srcdir}/${_realname}-${pkgver}.orig"
+
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  apply_patch_with_msg
+
+  rm -rf "${srcdir}/${_realname}-${pkgver}.ptch"
+  cp -rp "${srcdir}/${_realname}-${pkgver}" "${srcdir}/${_realname}-${pkgver}.ptch"
+}
+
+build() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  ${MINGW_PREFIX}/bin/python setup.py --quiet build
+}
+
+check() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+}
+
+package() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  MSYS2_ARG_CONV_EXCL="--prefix=;--install-scripts=;--install-platlib=" \
+    ${MINGW_PREFIX}/bin/python setup.py --quiet install --prefix=${MINGW_PREFIX} --root="${pkgdir}" -O1
+
+  install -Dm644 LICENSE.md "${pkgdir}${MINGW_PREFIX}/share/licenses/python-${_realname}/LICENSE.md"
+}
