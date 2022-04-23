@@ -23,7 +23,9 @@ depends=("${MINGW_PACKAGE_PREFIX}-python"
          "${MINGW_PACKAGE_PREFIX}-python-urllib3"
          "${MINGW_PACKAGE_PREFIX}-python-yaml>=3.11"
          "${MINGW_PACKAGE_PREFIX}-python-yaml<6.0"
-         "${MINGW_PACKAGE_PREFIX}-python-jinja")
+         "${MINGW_PACKAGE_PREFIX}-python-jinja"
+         "${MINGW_PACKAGE_PREFIX}-python-patch-ng>=1.17.4"
+         "${MINGW_PACKAGE_PREFIX}-python-patch-ng<1.18")
 makedepends=("patch"
              "${MINGW_PACKAGE_PREFIX}-python-setuptools")
 checkdepends=("${MINGW_PACKAGE_PREFIX}-python-pytest")

@@ -1,0 +1,58 @@
+# Maintainer: gym603 <gui_yuan_miao@163.com>
+
+_realname=python-patch-ng
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=1.17.4
+pkgrel=1
+pkgdesc="Library to parse and apply unified diffs (mingw-w64)"
+arch=('any')
+url="https://pypi.python.org/pypy/patch-ng"
+license=('MIT')
+mingw_arch=('mingw32' 'mingw64')
+depends=("${MINGW_PACKAGE_PREFIX}-python")
+makedepends=("patch"
+             "${MINGW_PACKAGE_PREFIX}-python-setuptools")
+checkdepends=("${MINGW_PACKAGE_PREFIX}-python-pytest")
+source=(${_realname}-${pkgver}.tar.gz::https://github.com/conan-io/python-patch-ng/archive/refs/tags/${pkgver}.tar.gz)
+sha256sums=('e332ea2c2e64e95b988c6e904a51be65b80560518a9b101c604a1a4378673795')
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying ${_patch}"
+    patch -Nbp1 -i "${srcdir}/${_patch}"
+  done
+}
+
+prepare() {
+  rm -rf "${srcdir}/${_realname}-${pkgver}.orig"
+  cp -rp "${srcdir}/${_realname}-${pkgver}" "${srcdir}/${_realname}-${pkgver}.orig"
+
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  apply_patch_with_msg
+
+  rm -rf "${srcdir}/${_realname}-${pkgver}.ptch"
+  cp -rp "${srcdir}/${_realname}-${pkgver}" "${srcdir}/${_realname}-${pkgver}.ptch"
+}
+
+build() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  ${MINGW_PREFIX}/bin/python setup.py --quiet build
+}
+
+check() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+}
+
+package() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  MSYS2_ARG_CONV_EXCL="--prefix=;--install-scripts=;--install-platlib=" \
+    ${MINGW_PREFIX}/bin/python setup.py --quiet install --prefix=${MINGW_PREFIX} --root="${pkgdir}" -O1
+
+  install -Dm644 LICENSE "${pkgdir}${MINGW_PREFIX}/share/licenses/python-${_realname}/LICENSE"
+}

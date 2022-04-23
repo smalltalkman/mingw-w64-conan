@@ -2,6 +2,8 @@
 
 ## Build all
 ```
+ > ./build_python.sh patch-ng 64
+ > ./build_python.sh patch-ng 32
  > ./install-depends.sh
  > ./build_python.sh conan 64
  > ./build_python.sh conan 32
