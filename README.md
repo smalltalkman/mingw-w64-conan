@@ -2,14 +2,11 @@
 
 ## Build all
 ```
- > ./build_python.sh patch-ng 64
- > ./build_python.sh patch-ng 32
- > ./build_python.sh node-semver 64
- > ./build_python.sh node-semver 32
  > ./install-depends.sh
- > ./build_python.sh conan 64
- > ./build_python.sh conan 32
+ > ./build.sh -f build_order -32  
+ > ./build.sh -f build_order -64  
  > pacman -Rs --noconfirm mingw-w64-{i686,x86_64}-binutils
+ > pacman -Qdttq | pacman -Rs --noconfirm -
 ```
 
 ## Install/Uninstall conan
