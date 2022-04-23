@@ -1,0 +1,58 @@
+# Maintainer: gym603 <gui_yuan_miao@163.com>
+
+_realname=python-node-semver
+pkgbase=mingw-w64-${_realname}
+pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgver=0.6.1
+pkgrel=1
+pkgdesc="python version of node-semver (mingw-w64)"
+arch=('any')
+url="https://github.com/podhmo/python-semver"
+license=('MIT')
+mingw_arch=('mingw32' 'mingw64')
+depends=("${MINGW_PACKAGE_PREFIX}-python")
+makedepends=("patch"
+             "${MINGW_PACKAGE_PREFIX}-python-setuptools")
+checkdepends=("${MINGW_PACKAGE_PREFIX}-python-pytest")
+source=(${_realname}-${pkgver}.tar.gz::https://github.com/podhmo/python-node-semver/archive/refs/tags/${pkgver}.tar.gz)
+sha256sums=('2baa80cb0a386e3c5b72148915c30acdf4437dddc313e324193c6807bc6504ad')
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying ${_patch}"
+    patch -Nbp1 -i "${srcdir}/${_patch}"
+  done
+}
+
+prepare() {
+  rm -rf "${srcdir}/${_realname}-${pkgver}.orig"
+  cp -rp "${srcdir}/${_realname}-${pkgver}" "${srcdir}/${_realname}-${pkgver}.orig"
+
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  apply_patch_with_msg
+
+  rm -rf "${srcdir}/${_realname}-${pkgver}.ptch"
+  cp -rp "${srcdir}/${_realname}-${pkgver}" "${srcdir}/${_realname}-${pkgver}.ptch"
+}
+
+build() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  ${MINGW_PREFIX}/bin/python setup.py --quiet build
+}
+
+check() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+}
+
+package() {
+  cd "${srcdir}/${_realname}-${pkgver}"
+
+  MSYS2_ARG_CONV_EXCL="--prefix=;--install-scripts=;--install-platlib=" \
+    ${MINGW_PREFIX}/bin/python setup.py --quiet install --prefix=${MINGW_PREFIX} --root="${pkgdir}" -O1
+
+  install -Dm644 LICENSE "${pkgdir}${MINGW_PREFIX}/share/licenses/python-${_realname}/LICENSE"
+}
