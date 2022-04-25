@@ -1,4 +1,6 @@
 # mingw-w64-conan
+> [Conan](https://conan.io/)
+| [github](https://github.com/conan-io/conan)
 
 ## Build all
 ```
